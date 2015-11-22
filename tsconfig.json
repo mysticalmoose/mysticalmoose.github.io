@@ -3,7 +3,7 @@
         "target": "ES5",
         "module": "amd",
         "sourceMap": true,
-		"out": "snake.js",
+		"out": "app.js",
         "watch": true
     }
 }
