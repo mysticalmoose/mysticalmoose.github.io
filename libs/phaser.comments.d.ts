@@ -2998,7 +2998,7 @@ declare module Phaser {
         * @param full If true the full image object will be returned, if false just the HTML Image object is returned. - Default: false
         * @return The Image object if found in the Cache, otherwise `null`. If `full` was true then a JavaScript object is returned.
         */
-        getImage(key: string, full?: boolean): Phaser.CachedImage;
+        getImage(key: string, full?: boolean): HTMLImageElement;
 
         /**
         * Get an item from a cache based on the given key and property.

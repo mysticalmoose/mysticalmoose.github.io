@@ -472,7 +472,7 @@ declare module Phaser {
         getFrameByName(key: string, name: string, cache?: number): Phaser.Frame;
         getFrameCount(key: string, cache?: number): number;
         getFrameData(key: string, cache?: number): Phaser.FrameData;
-        getImage(key: string, full?: boolean): Phaser.CachedImage;
+        getImage(key: string, full?: boolean): HTMLImageElement;
         getItem(key: string, cache: number, method?: string, property?: string): any;
         getJSON(key: string, clone?: boolean): any;
         getKeys(cache: number): string[];
