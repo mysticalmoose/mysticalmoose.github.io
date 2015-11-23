@@ -1,33 +1,20 @@
 module MainModule {
 	
-	export class Player extends Phaser.Sprite {
+	export class Snake extends Phaser.Group {
 		SPEED: number;
 		direction : number;
+		head: MainModule.Part;
+
 		
 		constructor(game: Phaser.Game, x: number, y: number) {
 			this.SPEED = 32;
 			this.direction = Phaser.RIGHT;
-			super(game, x, y, this.makeRectangle(game));
+			
+			this.head = new Part(game, x, y);
+			super(game);
 			game.add.existing(this);
 			
-			this.game.physics.enable(this, Phaser.Physics.ARCADE);
-			this.checkWorldBounds = true;
-			this.body.checkCollision.up = true;
-			this.body.checkCollision.down = true;
-			this.body.checkCollision.left = true;
-			this.body.checkCollision.right = true;
-			
-			this.events.onOutOfBounds.add(this.gameOver, this);		
-		}
-		
-		makeRectangle(game: Phaser.Game) : Phaser.BitmapData {
-			var bmd = game.add.bitmapData(32,32);
-			bmd.ctx.beginPath();
-			bmd.ctx.rect(0,0,128,128);
-			bmd.ctx.fillStyle = '#0000FF';
-			bmd.ctx.fill();
-			
-			return bmd;
+			this.add(this.head);
 		}
 		
 		update() {	
