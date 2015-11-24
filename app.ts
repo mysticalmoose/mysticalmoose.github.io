@@ -13,9 +13,9 @@ module MainModule {
         }
         
         bootGame(name) {
-            //this.state.start('GameSnake');
-            var fullStateName = 'Boot' + name;
-            this.state.start(fullStateName);
+            this.state.start('GameSnake');
+            //var fullStateName = 'Boot' + name;
+            //this.state.start(fullStateName);
         }
     }
 }
