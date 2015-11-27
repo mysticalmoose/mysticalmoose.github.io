@@ -15,7 +15,7 @@ module MainModule {
 			this.canMove = false
 			
 			this.head = new Part(game, x, y, false);
-			this.tail = new Part(game, this.head.x-32, this.head.y, false);
+			this.tail = new Part(game, this.head.x-32, this.head.y, true);
 			super(game);
 			game.add.existing(this);
 			

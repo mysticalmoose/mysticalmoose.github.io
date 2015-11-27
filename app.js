@@ -174,7 +174,7 @@ var MainModule;
             this.direction = Phaser.RIGHT;
             this.canMove = false;
             this.head = new MainModule.Part(game, x, y, false);
-            this.tail = new MainModule.Part(game, this.head.x - 32, this.head.y, false);
+            this.tail = new MainModule.Part(game, this.head.x - 32, this.head.y, true);
             _super.call(this, game);
             game.add.existing(this);
             this.add(this.head);
