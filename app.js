@@ -112,11 +112,9 @@ var MainModule;
         GameSnake.prototype.preload = function () {
         };
         GameSnake.prototype.create = function () {
-            this.game.physics.startSystem(Phaser.Physics.ARCADE);
+            //this.game.physics.startSystem(Phaser.Physics.ARCADE);
             this.snake = new MainModule.Snake(this.game, this.game.width / 2, this.game.height / 2 - 16);
             this.apple = new MainModule.Apple(this.game);
-            console.log(this.snake.head.x);
-            console.log(this.snake.head.y);
         };
         GameSnake.prototype.update = function () {
             if ((this.snake.head.x == this.apple.x && this.snake.head.y == this.apple.y))
@@ -127,9 +125,7 @@ var MainModule;
             //this.game.debug.spriteBounds(this.snake.head);
         };
         GameSnake.prototype.gameOver = function () {
-            console.log("aoutch");
-            this.game.paused = true;
-            //this.game.state.start('GameSnake', true, false);
+            this.game.state.start('GameSnake', true, false);
         };
         return GameSnake;
     })(Phaser.State);
@@ -139,17 +135,30 @@ var MainModule;
 (function (MainModule) {
     var Part = (function (_super) {
         __extends(Part, _super);
-        function Part(game, x, y) {
-            _super.call(this, game, x, y, this.makeRectangle(game));
+        function Part(game, x, y, isTail) {
+            this.bmd = game.add.bitmapData(32, 32);
+            if (isTail) {
+                this.makeTail();
+            }
+            else {
+                this.makePart();
+            }
+            _super.call(this, game, x, y, this.bmd);
             game.add.existing(this);
         }
-        Part.prototype.makeRectangle = function (game) {
-            var bmd = game.add.bitmapData(32, 32);
-            bmd.ctx.beginPath();
-            bmd.ctx.rect(0, 0, 128, 128);
-            bmd.ctx.fillStyle = '#0000FF';
-            bmd.ctx.fill();
-            return bmd;
+        // TODO Évidemment, changer le this.bmd n'aura aucun impact sur le changement de couleur puisque le bmd ne sert que dans le constructor lors de la création du sprite
+        // Pour régler ce problème 2 solutions s'offrent à nous : Trouver un moyen pour modifier directement le bmd d'un sprite
+        Part.prototype.makeTail = function () {
+            this.bmd.ctx.beginPath();
+            this.bmd.ctx.rect(0, 0, 128, 128);
+            this.bmd.ctx.fillStyle = '#006600';
+            this.bmd.ctx.fill();
+        };
+        Part.prototype.makePart = function () {
+            this.bmd.ctx.beginPath();
+            this.bmd.ctx.rect(0, 0, 128, 128);
+            this.bmd.ctx.fillStyle = '#0000FF';
+            this.bmd.ctx.fill();
         };
         return Part;
     })(Phaser.Sprite);
@@ -163,36 +172,45 @@ var MainModule;
             this.SPEED = 32;
             this.delay = 0.15;
             this.direction = Phaser.RIGHT;
-            this.head = new MainModule.Part(game, x, y);
+            this.canMove = false;
+            this.head = new MainModule.Part(game, x, y, false);
+            this.tail = new MainModule.Part(game, this.head.x - 32, this.head.y, false);
             _super.call(this, game);
             game.add.existing(this);
             this.add(this.head);
-            this.game.time.events.add(Phaser.Timer.QUARTER * this.delay, this.move, this);
+            this.add(this.tail);
+            this.game.time.events.add(Phaser.Timer.QUARTER * this.delay, this.canMoveF, this);
         }
+        Snake.prototype.canMoveF = function () {
+            this.canMove = true;
+        };
         Snake.prototype.getApple = function (apple) {
             var x = this.game.rnd.between(0, 19) * 32;
             var y = this.game.rnd.between(0, 14) * 32;
             apple.reset(x, y);
-            this.add(new MainModule.Part(this.game, this.getChildAt(this.length - 1).x, this.getChildAt(this.length - 1).y));
+            this.tail.bmd.clear();
+            this.tail.bmd.ctx.beginPath();
+            this.tail.bmd.ctx.rect(0, 0, 128, 128);
+            this.tail.bmd.ctx.fillStyle = '#0000FF';
+            this.tail.bmd.ctx.fill();
+            this.tail = this.add(new MainModule.Part(this.game, this.getChildAt(this.length - 1).x, this.getChildAt(this.length - 1).y, true));
         };
         Snake.prototype.update = function () {
-            if (this.isOutOfBounds()) {
-                var state = this.game.state.getCurrentState();
-                state.gameOver();
-            }
-            // TODO Le input manager n'est pas assez fiable pour gérer les déplacements, il vaut mieux faire cette vérification sur le déplacement plutôt que sur le changement de direction 
-            var key = this.game.input.keyboard;
-            if (key.isDown(Phaser.Keyboard.RIGHT) && this.direction != Phaser.LEFT) {
-                this.direction = Phaser.RIGHT;
-            }
-            else if (key.isDown(Phaser.Keyboard.LEFT) && this.direction != Phaser.RIGHT) {
-                this.direction = Phaser.LEFT;
-            }
-            else if (key.isDown(Phaser.Keyboard.UP) && this.direction != Phaser.DOWN) {
-                this.direction = Phaser.UP;
-            }
-            else if (key.isDown(Phaser.Keyboard.DOWN) && this.direction != Phaser.UP) {
-                this.direction = Phaser.DOWN;
+            if (this.canMove) {
+                var key = this.game.input.keyboard;
+                if (key.isDown(Phaser.Keyboard.RIGHT) && this.direction != Phaser.LEFT) {
+                    this.direction = Phaser.RIGHT;
+                }
+                else if (key.isDown(Phaser.Keyboard.LEFT) && this.direction != Phaser.RIGHT) {
+                    this.direction = Phaser.LEFT;
+                }
+                else if (key.isDown(Phaser.Keyboard.UP) && this.direction != Phaser.DOWN) {
+                    this.direction = Phaser.UP;
+                }
+                else if (key.isDown(Phaser.Keyboard.DOWN) && this.direction != Phaser.UP) {
+                    this.direction = Phaser.DOWN;
+                }
+                this.move();
             }
         };
         Snake.prototype.isOutOfBounds = function () {
@@ -225,10 +243,14 @@ var MainModule;
                 state.gameOver();
             }
             else {
-                this.game.time.events.add(Phaser.Timer.QUARTER * this.delay, this.move, this);
+                this.canMove = false;
+                this.game.time.events.add(Phaser.Timer.QUARTER * this.delay, this.canMoveF, this);
             }
         };
         Snake.prototype.checkCollisionWithEachPart = function () {
+            if (this.isOutOfBounds()) {
+                return true;
+            }
             for (var i = 1; i < this.children.length; i++) {
                 if (this.head.x == this.getChildAt(i).x && this.head.y == this.getChildAt(i).y) {
                     return true;

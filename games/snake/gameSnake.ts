@@ -10,11 +10,10 @@ module MainModule {
 		}
 	
 		create() {
-			this.game.physics.startSystem(Phaser.Physics.ARCADE);
+			//this.game.physics.startSystem(Phaser.Physics.ARCADE);
 			this.snake = new Snake(this.game, this.game.width / 2, this.game.height / 2 - 16);
+
 			this.apple = new Apple(this.game);
-			console.log(this.snake.head.x);
-			console.log(this.snake.head.y);
 		}
 		
 		update() {
@@ -28,9 +27,7 @@ module MainModule {
 		}
 		
 		gameOver() {
-			console.log("aoutch");
-			this.game.paused = true;
-			//this.game.state.start('GameSnake', true, false);
+			this.game.state.start('GameSnake', true, false);
 		}
 	}
 }
